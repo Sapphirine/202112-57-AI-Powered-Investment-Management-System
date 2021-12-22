@@ -12,3 +12,8 @@ Run this command in your terminal where main.py file is store
 ```
 pip install -r requirements.txt
 ```
+After running this commanda all the required packages will be installed. Now, to run the application in the same terminal type this commands
+
+```
+streamlit run main.py
+```
