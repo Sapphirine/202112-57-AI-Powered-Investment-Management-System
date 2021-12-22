@@ -7,6 +7,8 @@ In this project, our team has developed an all-in-one platform that not only rec
 
 # How to run the file
 
+Run this command in your terminal where main.py file is store
+
 ```
 pip install -r requirements.txt
 ```
