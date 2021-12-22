@@ -20,4 +20,4 @@ streamlit run main.py
 
 # Credits
 
-We would like to thank Prog Ching-Yun Lin and his team of teaching assistants for the resources and guidance provided to complete this project. 
+We would like to thank Prof. Ching-Yung Lin and his team of teaching assistants for the resources and guidance provided to complete this project. 
