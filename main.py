@@ -1,3 +1,4 @@
+#import libraries
 import sqlalchemy
 import pymysql
 import ta
@@ -29,6 +30,8 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 pymysql.install_as_MySQLdb()
 engine = sqlalchemy.create_engine('mysql://root:12345678@localhost:3306/')
 
+
+#Stock recommendation class
 class StocksRecommender:
     engine = sqlalchemy.create_engine('mysql://root:12345678@localhost:3306/')
 
@@ -48,17 +51,17 @@ class StocksRecommender:
             prices.append(pd.read_sql(f"SELECT Date, Open, High, Low, Close FROM {sql}", self.engine))
         return prices
 
-    def MACDdecision(self, df):
+    def MACDdecision(self, df):#Technical indicator: MACD decision
         df['MACD_diff'] = ta.trend.macd_diff(df.Close)
         df['Decision MACD'] = np.where((df.MACD_diff > 0) & (df.MACD_diff.shift(1) < 0), True, False)
 
-    def Goldencrossdecision(self, df):
+    def Goldencrossdecision(self, df): #Technical indicator: golden cross decision
         df['SMA50'] = ta.trend.sma_indicator(df.Close, window = 50)
         df['SMA200'] = ta.trend.sma_indicator(df.Close, window = 200)
         df['Signal'] = np.where(df['SMA50'] > df['SMA200'], True, False)
         df['Decision GC'] = df.Signal.diff()
 
-    def RSI_SMAdecision(self, df):
+    def RSI_SMAdecision(self, df):#Technical indicator: RSI decision
         df['RSI'] = ta.momentum.rsi(df.Close, window = 6)
         df['Decision RSI/SMA'] = np.where((df.Close > df.SMA200) & (df.RSI < 30), True, False)
 
@@ -98,7 +101,7 @@ def load_data(ticker):
     data.reset_index(inplace=True)
     return data
 
-st.sidebar.title('Current Portfolio')
+st.sidebar.title('Current Portfolio') #current portfolio dialogbox
 a = st.sidebar.button('AAPL')
 if a == True:
     data_X = load_data('AAPL')
@@ -178,14 +181,14 @@ if f == True:
 
 st.sidebar.title('Recommended S&P 500 Stock')
 stock_buying_option = st.sidebar.selectbox('', stocks_for_buying)
-option = st.sidebar.selectbox('Chart Type', ('Candle Stick', 'Line Chart', 'Stocktwits', 'Forecasting', 'Twitter'))
+option = st.sidebar.selectbox('Chart Type', ('Candle Stick', 'Line Chart', 'Stocktwits', 'Forecasting', 'Twitter')) #Drop down for sidebar
 
 
 n_years = st.sidebar.slider('Years of prediction:', 1, 4)
 period = n_years * 365
 
 
-data = load_data(stock_buying_option)
+data = load_data(stock_buying_option) #load data
 if option == 'Stocktwits':
 
     r = requests.get(f"https://api.stocktwits.com/api/2/streams/symbol/{stock_buying_option}.json")
@@ -199,7 +202,7 @@ if option == 'Stocktwits':
         st.write(message['body'])
 
 
-if option == 'Line Chart':
+if option == 'Line Chart': #line chart visualisation
     data_line_chart = data
     def plot_raw_data():
         fig = go.Figure()
@@ -224,7 +227,7 @@ if option == 'Line Chart':
     st.plotly_chart(fig1)
 
 
-if option == 'Forecasting':
+if option == 'Forecasting': #forecasting visualisation
     data_forecast = data
     df_train = data_forecast[['Date','Close']]
     df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
@@ -239,7 +242,7 @@ if option == 'Forecasting':
     st.plotly_chart(fig1)
 
 
-if option == 'Candle Stick':
+if option == 'Candle Stick': #Candle stick visualisation
     symbol = stock_buying_option
 
     sql = 'SP500' +'.'+ f'`{stock_buying_option}`'
@@ -266,7 +269,7 @@ if option == 'Candle Stick':
     st.write(data_cs)
 
 
-if option == 'Twitter':
+if option == 'Twitter': #Twitter sentiment
     query = tweepy.Cursor(api.search_tweets, q=stock_buying_option, lang = 'en').items(1000)
     tweets = [{'Tweet':tweet.text, 'Timestamp':tweet.created_at} for tweet in query]
     df = pd.DataFrame.from_dict(tweets)
@@ -296,6 +299,8 @@ if option == 'Twitter':
     st.plotly_chart(fig1)
 
 left, right, w = st.columns([0.5,1,1.5])
+
+#Buy/sell/watch options
 with left:
     buy = st.sidebar.button('Buy')
 
